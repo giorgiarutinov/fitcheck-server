@@ -2,6 +2,7 @@ import express from 'express';
 import { analyzeOutfitStyle } from './analyze-outfit-style.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { Request, Response } from 'express';
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-app.post('/analyze-style', async (req, res) => {
+app.post('/analyze-style', async (req: Request, res: Response) => {
   console.log('\nProcessing analyze request...');
   
   try {
