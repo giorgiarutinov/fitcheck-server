@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-app.post('/analyze-style', async (req: Request, res: Response) => {
+app.post('/analyze-style', async (req: Request<{}, {}, { photoUrl: string }>, res: Response) => {
   console.log('\nProcessing analyze request...');
   
   try {
