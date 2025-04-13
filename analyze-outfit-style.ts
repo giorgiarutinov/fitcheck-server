@@ -29,7 +29,7 @@ export async function analyzeOutfitStyle({ photoUrl }: { photoUrl: string }) {
       responseType: 'arraybuffer',
       timeout: 10000
     });
-    const base64Image = Buffer.from(response.data).toString('base64');
+    const base64Image = Buffer.from(response.data as ArrayBuffer).toString('base64');
 
     // 2. Настройка модели
     const model = genAI.getGenerativeModel({ 
