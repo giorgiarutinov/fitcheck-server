@@ -6,38 +6,37 @@ if (!apiKey) throw new Error('GOOGLE_API_KEY is not set in .env file');
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Основная функция анализа с base64
-export async function analyzeOutfitStyleFromBase64(base64Image: string, mimeType = 'image/jpeg') {
+// Основная функция анализа с base64 и кастомным prompt
+export async function analyzeOutfitStyleFromBase64(base64Image: string, mimeType = 'image/jpeg', prompt?: string) {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
       generationConfig: { maxOutputTokens: 3000 }
     });
 
-    const prompt = `
-    Детально проанализируй наряд на фото. Ответ должен содержать:
-    
-    1. Верхняя одежда: [тип, цвет, фасон]
-    2. Основной слой: [футболка/рубашка и т.д.]
-    3. Низ: [брюки/юбка/шорты]
-    4. Обувь: [тип, цвет]
-    5. Аксессуары: [сумки, украшения, головные уборы]
-    6. Общий стиль: [casual/formal/sporty/etc]
-    7. Цветовая палитра: [основные цвета]
-    8. Рекомендации по улучшению:
-       - [совет 1]
-       - [совет 2]
-       - [совет 3]
-    
-    Будь максимально конкретным и детальным в описании.
-    `;
+    // Если prompt не передан, используем дефолт на английском
+    const finalPrompt = prompt?.trim().length
+      ? prompt
+      : `Analyze the outfit in the photo in detail. Include:
+1. Outerwear: [type, color, style]
+2. Base layer: [shirt/t-shirt etc.]
+3. Bottom: [pants/skirt/shorts]
+4. Footwear: [type, color]
+5. Accessories: [bags, jewelry, hats]
+6. Overall style: [casual/formal/sporty/etc]
+7. Color palette: [main colors]
+8. Suggestions to improve:
+   - [tip 1]
+   - [tip 2]
+   - [tip 3]
+Be specific and detailed.`;
 
     const result = await model.generateContent([
-      { text: prompt },
+      { text: finalPrompt },
       {
         inlineData: {
           data: base64Image,
-          mimeType: mimeType
+          mimeType
         }
       }
     ]);
@@ -60,7 +59,7 @@ export async function analyzeOutfitStyleFromBase64(base64Image: string, mimeType
   }
 }
 
-// Парсер текстового ответа в структурированный объект
+// Парсер ответа
 function parseAnalysis(text: string) {
   const result: any = {};
   const sections = text.split('**').slice(1);
