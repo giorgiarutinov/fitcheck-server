@@ -55,11 +55,16 @@ app.post('/analyze-style', async (req, res) => {
     }
 
     // 📸 Обработка запроса с изображением
+    // if (!image) {
+    //   return res.status(400).json({ success: false, error: 'Image (base64) is required' });
+    // }
+
     if (!image) {
       return res.status(400).json({ success: false, error: 'Image (base64) is required' });
     }
 
-    const result = await analyzeOutfitStyleFromBase64(image, mimeType);
+    // const result = await analyzeOutfitStyleFromBase64(image, mimeType);
+    const result = await analyzeOutfitStyleFromBase64(image, mimeType, req.body.prompt); // <-- добавлено
     return res.json(result);
 
   } catch (error) {
