@@ -116,8 +116,8 @@ function parseAnalysis(text: string) {
   };
 
   for (let i = 0; i < sections.length; i += 2) {
-    const rawTitle = sections[i].trim().replace(':', '');
-    const contentRaw = sections[i + 1]?.trim() || '';
+    const rawTitle = sections[i].trim().replace(/:$/, '');
+    const contentRaw = (sections[i + 1] || '').trim();
     const titleKey = rawTitle.toLowerCase();
 
     const matchedIconKey = Object.keys(iconsMap).find(key =>
@@ -127,10 +127,10 @@ function parseAnalysis(text: string) {
 
     if (titleKey.includes('рекомендации') || titleKey.includes('improvement suggestions')) {
       const tips = contentRaw
-        .split('*')
+        .split(/\n\s*[-•*]\s+/) // поддержка разных маркеров
         .map(t => t.trim())
-        .filter(Boolean)
-        .map(t => t.replace(/^[-\s]*/, ''));
+        .filter(Boolean);
+
       result.push({
         title: rawTitle,
         icon,
@@ -138,10 +138,11 @@ function parseAnalysis(text: string) {
       });
     } else if (titleKey.includes('цветовая палитра') || titleKey.includes('color palette')) {
       const colors = contentRaw
-        .split(':')[1]
-        ?.split(',')
+        .split(':').slice(1).join(':') // оставляем всё после первой ':'
+        .split(',')
         .map(c => c.trim())
-        .filter(Boolean) || [];
+        .filter(Boolean);
+
       result.push({
         title: rawTitle,
         icon,
@@ -151,11 +152,12 @@ function parseAnalysis(text: string) {
       result.push({
         title: rawTitle,
         icon,
-        content: contentRaw
+        content: contentRaw.replace(/\n\s*\d+\.\s*$/, '') // убираем ошибочную нумерацию типа '\n9.'
       });
     }
   }
 
   return result;
 }
+
 
