@@ -33,14 +33,31 @@ app.post('/analyze-style', async (req, res) => {
     if (trendy && query) {
       console.log('✨ Трендовый запрос получен!');
       const prompt = `
-        Отвечай строго в JSON формате:
+        Ты модный стилист. Ответь строго в JSON формате:
+
         {
-          "analysis": "Краткое описание модных трендов сегодня",
-          "colors": ["цвет 1", "цвет 2", "цвет 3", "цвет 4", "цвет 5"]
+          "analysis": "Краткое описание модных трендов на сегодня.",
+          "colors": [
+        { "name": "название цвета", "hex": "#HEXCODE" },
+        { "name": "название цвета", "hex": "#HEXCODE" },
+          ...
+        ]
         }
 
+        Важно: hex должен быть валидным цветом в формате "#RRGGBB".
+
         Вопрос: ${query}
-      `;
+        `;
+
+      // const prompt = `
+      //   Отвечай строго в JSON формате:
+      //   {
+      //     "analysis": "Краткое описание модных трендов сегодня",
+      //     "colors": ["цвет 1", "цвет 2", "цвет 3", "цвет 4", "цвет 5"]
+      //   }
+
+      //   Вопрос: ${query}
+      // `;
 
       const result = await trendModel.generateContent([{ text: prompt }]);
       const text = result.response.text();
