@@ -31,45 +31,95 @@ app.post('/analyze-style', async (req, res) => {
 
     // 🎯 Обработка трендового текстового запроса
     if (trendy && query) {
-      console.log('✨ Трендовый запрос получен!');
-      const prompt = `
-        Ты модный стилист. Ответь строго в JSON формате:
+  const lang = req.body.lang === 'ru' ? 'ru' : 'en';
+  console.log(`✨ Трендовый запрос получен! Язык: ${lang}`);
 
-        {
-          "analysis": "Краткое описание модных трендов на сегодня.",
-          "colors": [
-        { "name": "название цвета", "hex": "#HEXCODE" },
-        { "name": "название цвета", "hex": "#HEXCODE" },
-          ...
-        ]
-        }
+  const prompt = lang === 'ru'
+    ? `
+Ты модный стилист. Ответь строго в JSON формате:
 
-        Важно: hex должен быть валидным цветом в формате "#RRGGBB".
+{
+  "analysis": "Краткое описание модных трендов на сегодня.",
+  "colors": [
+    { "name": "название цвета", "hex": "#HEXCODE" },
+    ...
+  ],
+  "brands": ["бренд1", "бренд2", "бренд3", "бренд4", "бренд5"]
+}
 
-        Вопрос: ${query}
-        `;
+Важно: hex должен быть валидным цветом в формате "#RRGGBB".
 
-      // const prompt = `
-      //   Отвечай строго в JSON формате:
-      //   {
-      //     "analysis": "Краткое описание модных трендов сегодня",
-      //     "colors": ["цвет 1", "цвет 2", "цвет 3", "цвет 4", "цвет 5"]
-      //   }
+Вопрос: ${query}
+`
+    : `
+You are a fashion stylist. Respond strictly in JSON format:
 
-      //   Вопрос: ${query}
-      // `;
+{
+  "analysis": "Brief description of today's fashion trends.",
+  "colors": [
+    { "name": "color name", "hex": "#HEXCODE" },
+    ...
+  ],
+  "brands": ["brand1", "brand2", "brand3", "brand4", "brand5"]
+}
 
-      const result = await trendModel.generateContent([{ text: prompt }]);
-      const text = result.response.text();
+Important: hex must be valid in "#RRGGBB" format.
 
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        return res.status(400).json({ error: 'JSON not found in response' });
-      }
+Question: ${query}
+`;
 
-      const parsed = JSON.parse(jsonMatch[0]);
-      return res.json(parsed);
-    }
+  const result = await trendModel.generateContent([{ text: prompt }]);
+  const text = result.response.text();
+
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    return res.status(400).json({ error: 'JSON not found in response' });
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  return res.json(parsed);
+}
+
+    // if (trendy && query) {
+    //   console.log('✨ Трендовый запрос получен!');
+    //   const prompt = `
+    //     Ты модный стилист. Ответь строго в JSON формате:
+
+    //     {
+    //       "analysis": "Краткое описание модных трендов на сегодня.",
+    //       "colors": [
+    //     { "name": "название цвета", "hex": "#HEXCODE" },
+    //     { "name": "название цвета", "hex": "#HEXCODE" },
+    //       ...
+    //     ]
+    //     }
+
+    //     Важно: hex должен быть валидным цветом в формате "#RRGGBB".
+
+    //     Вопрос: ${query}
+    //     `;
+
+    //   // const prompt = `
+    //   //   Отвечай строго в JSON формате:
+    //   //   {
+    //   //     "analysis": "Краткое описание модных трендов сегодня",
+    //   //     "colors": ["цвет 1", "цвет 2", "цвет 3", "цвет 4", "цвет 5"]
+    //   //   }
+
+    //   //   Вопрос: ${query}
+    //   // `;
+
+    //   const result = await trendModel.generateContent([{ text: prompt }]);
+    //   const text = result.response.text();
+
+    //   const jsonMatch = text.match(/\{[\s\S]*\}/);
+    //   if (!jsonMatch) {
+    //     return res.status(400).json({ error: 'JSON not found in response' });
+    //   }
+
+    //   const parsed = JSON.parse(jsonMatch[0]);
+    //   return res.json(parsed);
+    // }
 
     // 📸 Обработка запроса с изображением
     // if (!image) {
