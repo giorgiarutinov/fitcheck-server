@@ -26,7 +26,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const trendModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // ✅ Используем новый роут для магазинов
-app.use(placesRouter);
+app.use('/', placesRouter);
 
 // ✅ Универсальный обработчик анализа
 app.post('/analyze-style', async (req, res) => {
