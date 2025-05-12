@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { analyzeOutfitStyleFromBase64 } from './analyze-outfit-style.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import placesRouter from './places.js'; // <-- Добавляем вверху
 
 dotenv.config();
 
@@ -23,6 +24,9 @@ app.use((req, res, next) => {
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const trendModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+// ✅ Используем новый роут для магазинов
+app.use(placesRouter);
 
 // ✅ Универсальный обработчик анализа
 app.post('/analyze-style', async (req, res) => {
@@ -146,3 +150,4 @@ Question: ${query}
 app.listen(PORT, () => {
   console.log(`\n🚀 Server ready at http://localhost:${PORT}`);
 });
+
