@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// ✅ Используем новый роут для магазинов
+app.use('/', placesRouter);
+
 // Logging middleware
 app.use((req, res, next) => {
   console.log('\n=== NEW REQUEST ===');
@@ -24,9 +27,6 @@ app.use((req, res, next) => {
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const trendModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-// ✅ Используем новый роут для магазинов
-app.use('/', placesRouter);
 
 // ✅ Универсальный обработчик анализа
 app.post('/analyze-style', async (req, res) => {
