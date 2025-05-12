@@ -5,26 +5,39 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const router = Router();
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
 const RADIUS = 3000;
 
+// Тип для места
+interface Place {
+  id: string;
+  name: string;
+  address: string;
+  distance: number;
+  isOpen?: boolean;
+  openingHoursText: string;
+  rating?: number;
+  placeID: string;
+}
+
+// 🚩 Получение ближайших магазинов
 router.post('/nearby-stores', async (req, res) => {
   try {
     const { latitude, longitude } = req.body;
+
     if (!latitude || !longitude) {
       return res.status(400).json({ error: 'Coordinates are required' });
     }
 
     const types = ['shopping_mall', 'clothing_store'];
-    let allPlaces = [];
+    const allPlaces: Place[] = [];
 
     for (const type of types) {
       const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${RADIUS}&type=${type}&language=en&key=${GOOGLE_API_KEY}`;
-
       const response = await fetch(url);
       const data = await response.json();
 
-      const places = data.results.map(place => ({
+      const places: Place[] = data.results.map((place: any) => ({
         id: place.place_id,
         name: place.name,
         address: place.vicinity,
@@ -35,7 +48,7 @@ router.post('/nearby-stores', async (req, res) => {
         placeID: place.place_id
       }));
 
-      allPlaces = allPlaces.concat(places);
+      allPlaces.push(...places);
     }
 
     return res.json({ stores: allPlaces });
@@ -45,9 +58,11 @@ router.post('/nearby-stores', async (req, res) => {
   }
 });
 
+// 🚩 Получение ссылки на место по placeID
 router.post('/place-details', async (req, res) => {
   try {
     const { placeId } = req.body;
+
     if (!placeId) {
       return res.status(400).json({ error: 'placeId is required' });
     }
