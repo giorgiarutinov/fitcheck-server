@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { analyzeOutfitStyleFromBase64 } from './analyze-outfit-style.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import placesRouter from './places.js'; // <-- Добавляем вверху
+import placesRouter from './places'; // <-- Добавляем вверху
 
 dotenv.config();
 
